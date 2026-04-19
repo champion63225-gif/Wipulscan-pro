@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SuperPrompt Studio</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+<header id="app-header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <span class="logo-icon"><i class="fa-solid fa-bolt-lightning"></i></span>
+      <span class="logo-text">SuperPrompt <span class="logo-accent">Studio</span></span>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn active" data-view="builder" title="Prompt Builder">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Builder
+      </button>
+      <button class="nav-btn" data-view="library" title="Meine Prompts">
+        <i class="fa-solid fa-book-bookmark"></i> Bibliothek
+      </button>
+      <button class="nav-btn" data-view="templates" title="Templates">
+        <i class="fa-solid fa-layer-group"></i> Templates
+      </button>
+      <button class="nav-btn" data-view="history" title="Verlauf">
+        <i class="fa-solid fa-clock-rotate-left"></i> Verlauf
+      </button>
+    </nav>
+    <div class="header-actions">
+      <button id="btn-theme-toggle" class="icon-btn" title="Dark/Light Mode">
+        <i class="fa-solid fa-circle-half-stroke"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════ MAIN ═══════════════════════════ -->
+<main id="app-main">
+
+  <!-- ─────────── VIEW: BUILDER ─────────── -->
+  <section id="view-builder" class="view active">
+    <div class="builder-layout">
+
+      <!-- LEFT: Config Panel -->
+      <aside class="builder-config panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-sliders"></i> Prompt konfigurieren</h2>
+        </div>
+
+        <!-- Persona / Rolle -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-user-tie"></i> Rolle / Persona</label>
+          <select id="cfg-role" class="select-input">
+            <option value="">— keine spezifische Rolle —</option>
+            <option value="expert">Experte auf dem Gebiet</option>
+            <option value="teacher">Lehrerin / Lehrer</option>
+            <option value="coach">Coach / Mentor</option>
+            <option value="analyst">Analyst / Strategin</option>
+            <option value="creative">Kreativdirektorin</option>
+            <option value="developer">Erfahrener Entwickler</option>
+            <option value="copywriter">Professioneller Texter</option>
+            <option value="researcher">Wissenschaftlicher Forscher</option>
+            <option value="custom">Eigene Rolle …</option>
+          </select>
+          <input id="cfg-role-custom" class="text-input hidden" placeholder="Deine eigene Rolle eingeben …" />
+        </div>
+
+        <!-- Aufgabe -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-bullseye"></i> Aufgabe / Ziel</label>
+          <textarea id="cfg-task" class="textarea-input" rows="3" placeholder="Was soll die KI tun? (z. B. Erkläre mir …, Schreibe einen …, Analysiere …)"></textarea>
+        </div>
+
+        <!-- Kontext -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-circle-info"></i> Kontext / Hintergrund</label>
+          <textarea id="cfg-context" class="textarea-input" rows="3" placeholder="Relevanter Hintergrund, Zielgruppe, Branche, Projekt …"></textarea>
+        </div>
+
+        <!-- Format -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-list-check"></i> Ausgabeformat</label>
+          <div class="chip-group" id="cfg-format-chips">
+            <button class="chip" data-value="fließtext">Fließtext</button>
+            <button class="chip" data-value="stichpunkte">Stichpunkte</button>
+            <button class="chip active" data-value="strukturiert">Strukturiert</button>
+            <button class="chip" data-value="tabelle">Tabelle</button>
+            <button class="chip" data-value="markdown">Markdown</button>
+            <button class="chip" data-value="json">JSON</button>
+            <button class="chip" data-value="code">Code</button>
+            <button class="chip" data-value="schritt-für-schritt">Schritt-für-Schritt</button>
+          </div>
+        </div>
+
+        <!-- Ton / Stil -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-palette"></i> Ton / Stil</label>
+          <div class="chip-group" id="cfg-tone-chips">
+            <button class="chip active" data-value="professionell">Professionell</button>
+            <button class="chip" data-value="freundlich">Freundlich</button>
+            <button class="chip" data-value="präzise">Präzise</button>
+            <button class="chip" data-value="kreativ">Kreativ</button>
+            <button class="chip" data-value="humorvoll">Humorvoll</button>
+            <button class="chip" data-value="akademisch">Akademisch</button>
+            <button class="chip" data-value="einfach">Einfach & klar</button>
+          </div>
+        </div>
+
+        <!-- Länge -->
+        <div class="config-group">
+          <label class="group-label">
+            <i class="fa-solid fa-ruler-horizontal"></i> Länge / Umfang
+            <span class="label-value" id="cfg-length-label">Mittel</span>
+          </label>
+          <input type="range" id="cfg-length" class="range-input" min="1" max="5" value="3" step="1" />
+          <div class="range-ticks">
+            <span>Nano</span><span>Kurz</span><span>Mittel</span><span>Lang</span><span>Episch</span>
+          </div>
+        </div>
+
+        <!-- Sprache -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-globe"></i> Ausgabesprache</label>
+          <select id="cfg-language" class="select-input">
+            <option value="deutsch">Deutsch</option>
+            <option value="englisch">Englisch</option>
+            <option value="spanisch">Spanisch</option>
+            <option value="französisch">Französisch</option>
+            <option value="italienisch">Italienisch</option>
+            <option value="portugiesisch">Portugiesisch</option>
+            <option value="japanisch">Japanisch</option>
+            <option value="chinesisch">Chinesisch</option>
+          </select>
+        </div>
+
+        <!-- Constraints -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-ban"></i> Einschränkungen / Was vermeiden?</label>
+          <textarea id="cfg-constraints" class="textarea-input" rows="2" placeholder="z. B. Kein Fachjargon, keine Wiederholungen, max. 500 Wörter …"></textarea>
+        </div>
+
+        <!-- Beispiele -->
+        <div class="config-group">
+          <label class="group-label"><i class="fa-solid fa-lightbulb"></i> Beispiele / Few-Shot (optional)</label>
+          <textarea id="cfg-examples" class="textarea-input" rows="3" placeholder="Beispiel-Input → Beispiel-Output zum Einlernen …"></textarea>
+        </div>
+
+        <!-- Chain of Thought -->
+        <div class="config-group toggle-group">
+          <label class="group-label"><i class="fa-solid fa-brain"></i> Chain-of-Thought aktivieren</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cfg-cot" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Self-Critique -->
+        <div class="config-group toggle-group">
+          <label class="group-label"><i class="fa-solid fa-magnifying-glass-chart"></i> Selbstkritik & Revision</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cfg-selfcritique" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="config-actions">
+          <button id="btn-generate" class="btn-primary btn-lg">
+            <i class="fa-solid fa-bolt-lightning"></i> Superprompt generieren
+          </button>
+          <button id="btn-reset-config" class="btn-ghost">
+            <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
+          </button>
+        </div>
+      </aside>
+
+      <!-- CENTER: Preview -->
+      <section class="builder-preview panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-eye"></i> Vorschau & Ergebnis</h2>
+          <div class="panel-header-actions">
+            <button id="btn-copy" class="btn-secondary" title="In Zwischenablage kopieren" disabled>
+              <i class="fa-solid fa-copy"></i> Kopieren
+            </button>
+            <button id="btn-save-prompt" class="btn-secondary" title="In Bibliothek speichern" disabled>
+              <i class="fa-solid fa-floppy-disk"></i> Speichern
+            </button>
+          </div>
+        </div>
+
+        <div id="prompt-output-wrapper">
+          <!-- Empty State -->
+          <div id="output-empty" class="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <h3>Bereit zum Zaubern!</h3>
+            <p>Konfiguriere deinen Prompt links und klicke auf <strong>Superprompt generieren</strong>.</p>
+            <p class="hint">Oder wähle ein Template aus der Bibliothek als Startpunkt.</p>
+          </div>
+
+          <!-- Output -->
+          <div id="output-result" class="hidden">
+            <div class="output-meta">
+              <span id="output-stats" class="stat-badge"></span>
+              <span id="output-quality" class="quality-badge"></span>
+            </div>
+            <div id="output-sections"></div>
+            <div class="output-raw-wrapper">
+              <button class="collapse-toggle" id="toggle-raw">
+                <i class="fa-solid fa-code"></i> Rohdaten anzeigen
+              </button>
+              <pre id="output-raw" class="output-raw hidden"></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variations -->
+        <div id="variations-wrapper" class="hidden">
+          <div class="panel-header" style="margin-top:1.5rem;">
+            <h3><i class="fa-solid fa-shuffle"></i> Variationen</h3>
+            <button id="btn-gen-variations" class="btn-ghost btn-sm">
+              <i class="fa-solid fa-arrows-rotate"></i> Neu generieren
+            </button>
+          </div>
+          <div id="variations-list" class="variations-grid"></div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Tips & Modifiers -->
+      <aside class="builder-tips panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-star"></i> Power-Modifiers</h2>
+        </div>
+
+        <div class="modifier-group">
+          <h4><i class="fa-solid fa-flask"></i> Technik-Booster</h4>
+          <div class="modifier-list">
+            <button class="modifier-btn" data-modifier="tree-of-thought">🌳 Tree-of-Thought</button>
+            <button class="modifier-btn" data-modifier="react">⚛️ ReAct Pattern</button>
+            <button class="modifier-btn" data-modifier="zero-shot-cot">🔗 Zero-Shot CoT</button>
+            <button class="modifier-btn" data-modifier="structured-output">📊 Strukturierter Output</button>
+            <button class="modifier-btn" data-modifier="role-play">🎭 Rollenspiel-Modus</button>
+            <button class="modifier-btn" data-modifier="socratic">💬 Sokratischer Dialog</button>
+          </div>
+        </div>
+
+        <div class="modifier-group">
+          <h4><i class="fa-solid fa-gauge-high"></i> Qualitäts-Booster</h4>
+          <div class="modifier-list">
+            <button class="modifier-btn" data-modifier="think-step">🪜 „Denke Schritt für Schritt"</button>
+            <button class="modifier-btn" data-modifier="verify">✅ Fakten verifizieren</button>
+            <button class="modifier-btn" data-modifier="alternatives">🔀 Alternativen anbieten</button>
+            <button class="modifier-btn" data-modifier="pros-cons">⚖️ Pro & Contra</button>
+            <button class="modifier-btn" data-modifier="expert-level">🎓 Experten-Niveau</button>
+            <button class="modifier-btn" data-modifier="concise">✂️ Maximal prägnant</button>
+          </div>
+        </div>
+
+        <div class="modifier-group">
+          <h4><i class="fa-solid fa-toolbox"></i> Ausgabe-Tools</h4>
+          <div class="modifier-list">
+            <button class="modifier-btn" data-modifier="tldr">📋 TL;DR Zusammenfassung</button>
+            <button class="modifier-btn" data-modifier="action-items">☑️ Action-Items</button>
+            <button class="modifier-btn" data-modifier="sources">📚 Quellen nennen</button>
+            <button class="modifier-btn" data-modifier="eli5">👶 ELI5 Erklärung</button>
+            <button class="modifier-btn" data-modifier="timeline">📅 Zeitstrahl</button>
+            <button class="modifier-btn" data-modifier="comparison">🔎 Vergleich</button>
+          </div>
+        </div>
+
+        <div class="tips-section">
+          <h4><i class="fa-solid fa-circle-question"></i> Prompt-Tipps</h4>
+          <div id="tips-rotator" class="tip-card">
+            <p id="tip-text"></p>
+            <button id="btn-next-tip" class="btn-ghost btn-sm">Nächster Tipp →</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ─────────── VIEW: LIBRARY ─────────── -->
+  <section id="view-library" class="view hidden">
+    <div class="view-header">
+      <h1><i class="fa-solid fa-book-bookmark"></i> Meine Prompt-Bibliothek</h1>
+      <div class="view-header-actions">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="library-search" placeholder="Prompts durchsuchen …" />
+        </div>
+        <select id="library-filter-cat" class="select-input select-sm">
+          <option value="">Alle Kategorien</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="library-grid" class="card-grid">
+      <!-- Populated by JS -->
+    </div>
+    <div id="library-empty" class="empty-state hidden">
+      <div class="empty-icon"><i class="fa-solid fa-box-open"></i></div>
+      <h3>Noch keine gespeicherten Prompts</h3>
+      <p>Erstelle deinen ersten Superprompt im Builder und speichere ihn hier.</p>
+      <button class="btn-primary" onclick="switchView('builder')">
+        <i class="fa-solid fa-plus"></i> Ersten Prompt erstellen
+      </button>
+    </div>
+  </section>
+
+  <!-- ─────────── VIEW: TEMPLATES ─────────── -->
+  <section id="view-templates" class="view hidden">
+    <div class="view-header">
+      <h1><i class="fa-solid fa-layer-group"></i> Template-Bibliothek</h1>
+      <div class="view-header-actions">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="template-search" placeholder="Templates suchen …" />
+        </div>
+      </div>
+    </div>
+
+    <div class="template-categories" id="template-cat-filter">
+      <button class="cat-btn active" data-cat="all">Alle</button>
+      <button class="cat-btn" data-cat="business">Business</button>
+      <button class="cat-btn" data-cat="coding">Coding</button>
+      <button class="cat-btn" data-cat="writing">Schreiben</button>
+      <button class="cat-btn" data-cat="marketing">Marketing</button>
+      <button class="cat-btn" data-cat="learning">Lernen</button>
+      <button class="cat-btn" data-cat="analysis">Analyse</button>
+      <button class="cat-btn" data-cat="creative">Kreativ</button>
+    </div>
+
+    <div id="template-grid" class="card-grid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- ─────────── VIEW: HISTORY ─────────── -->
+  <section id="view-history" class="view hidden">
+    <div class="view-header">
+      <h1><i class="fa-solid fa-clock-rotate-left"></i> Verlauf</h1>
+      <div class="view-header-actions">
+        <button id="btn-clear-history" class="btn-danger btn-sm">
+          <i class="fa-solid fa-trash"></i> Verlauf löschen
+        </button>
+      </div>
+    </div>
+    <div id="history-list" class="history-list">
+      <!-- Populated by JS -->
+    </div>
+    <div id="history-empty" class="empty-state hidden">
+      <div class="empty-icon"><i class="fa-solid fa-clock"></i></div>
+      <h3>Noch kein Verlauf</h3>
+      <p>Generierte Prompts erscheinen hier automatisch.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════ MODALS ═══════════════════════════ -->
+
+<!-- Save Prompt Modal -->
+<div id="modal-save" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-floppy-disk"></i> Prompt speichern</h3>
+      <button class="modal-close" onclick="closeModal('modal-save')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name *</label>
+        <input type="text" id="save-name" class="text-input" placeholder="Mein großartiger Prompt …" />
+      </div>
+      <div class="form-group">
+        <label>Kategorie</label>
+        <select id="save-category" class="select-input">
+          <option value="allgemein">Allgemein</option>
+          <option value="business">Business</option>
+          <option value="coding">Coding</option>
+          <option value="writing">Schreiben</option>
+          <option value="marketing">Marketing</option>
+          <option value="learning">Lernen</option>
+          <option value="analysis">Analyse</option>
+          <option value="creative">Kreativ</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tags (kommasepariert)</label>
+        <input type="text" id="save-tags" class="text-input" placeholder="produktivität, ki, analyse …" />
+      </div>
+      <div class="form-group">
+        <label>Notiz</label>
+        <textarea id="save-note" class="textarea-input" rows="2" placeholder="Für was ist dieser Prompt gut?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-save')">Abbrechen</button>
+      <button id="btn-confirm-save" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Prompt Modal -->
+<div id="modal-view" class="modal-overlay hidden">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h3 id="modal-view-title">Prompt anzeigen</h3>
+      <button class="modal-close" onclick="closeModal('modal-view')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="prompt-view-meta" id="modal-view-meta"></div>
+      <pre id="modal-view-content" class="prompt-view-content"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-view')">Schließen</button>
+      <button id="btn-modal-copy" class="btn-secondary"><i class="fa-solid fa-copy"></i> Kopieren</button>
+      <button id="btn-modal-edit" class="btn-primary"><i class="fa-solid fa-pen"></i> Im Builder öffnen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast hidden">
+  <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+  <span id="toast-message"></span>
+</div>
+
+<!-- Scripts -->
+<script src="js/templates.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

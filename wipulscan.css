@@ -1,0 +1,102 @@
+# WiPulScan Pro – Spatial WiFi Signal Scanner
+
+## 🚀 Projektübersicht
+Eine vollständige, startklare WiFi-Signalanalyse-App, die **ausschließlich echte Messdaten** im Browser erfasst und visualisiert. Kein Mock, keine Simulation.
+
+---
+
+## ✅ Implementierte Features
+
+### Intro-Screen
+- Animierte Sci-Fi-Booting-Sequenz mit Fortschrittsbalken
+- Canvas-Partikel-Animation mit Rasterfeld und Scan-Linien
+- WAV-Datei uploadbar → Web Audio API → Frequenzspektrum als Waveform-Animation synchronisiert mit dem Intro
+- „Scanner starten"-Button nach vollständigem Boot
+
+### Dashboard (Tab 1)
+- **6 Echtzeit-KPI-Karten**: Signalstärke (dBm geschätzt), Qualitätsscore, Latenz, Downlink, Verbindungstyp, Throughput
+- **Radar-Animation** mit Live-Messpunkten (Canvas)
+- **Verbindungsdetail-Tabelle** mit 14 Feldern (Network API + Performance Timing)
+- **Latenz-Verlaufschart** (Chart.js, 60 Rolling Samples)
+- **Throughput-Verlaufschart** (Chart.js, 60 Rolling Samples)
+
+### Spatial Map (Tab 2)
+- Klickbare Heatmap-Karte für räumliche Messpunkte
+- Jeden Klick → sofortige Messung → farbcodierter Punkt (Grün=gut, Rot=schlecht)
+- Radial-Gradient-Heatmap pro Messpunkt
+- Seitenleiste mit Messpunkt-Liste und Statistiken
+- „Löschen"-Funktion
+
+### Analyse (Tab 3)
+- **Verbindungsstabilität** (Inverse des Variationskoeffizienten)
+- **Jitter** (Standardabweichung der Latenz)
+- **Paketverlustschätzung** (Timeout-Rate)
+- **Gesamt-Score** (0–100) mit Bewertungstext
+- **Latenz-Histogramm** (6 Buckets)
+- **Dynamische Empfehlungen** (basierend auf Messdaten)
+- Geräte-Info-Panel (Browser, RAM, CPU-Kerne, DNS, TCP, TTFB)
+- Session-Statistik (Laufzeit, Messungen, Datenpunkte)
+
+### Live-Log (Tab 4)
+- Jeder Messzyklus wird geloggt
+- Filter: Alle / Latenz / Netzwerk / Warnungen / Fehler
+- Farbcodierte Kategorien
+- Max. 500 Einträge
+
+### Scanner-Engine
+- Scan-Zyklus alle **8 Sekunden** (reale fetch-Latenzmessung braucht Zeit)
+- Latenz via `fetch()` zu Google/Cloudflare (3 Targets, bestes RTT)
+- Throughput via `fetch()` eines CDN-Assets (Bytes/Zeit)
+- Network Information API: `effectiveType`, `downlink`, `rtt`, `saveData`
+- `navigator.onLine` + `online`/`offline`-Events
+- Performance Resource Timing (DNS, TCP, TTFB)
+- Netzwerkänderungs-Listener (`connection.change`)
+
+### Datenpersistenz
+- Alle Messungen via REST-Table-API gespeichert (`wifi_scans`)
+- CSV-Export mit Zeitstempel
+
+---
+
+## 📁 Dateistruktur
+
+```
+wipulscan.html   ← Haupt-App (eigenständig)
+wipulscan.css    ← Dark Sci-Fi Design
+wipulscan.js     ← Komplette App-Logik
+```
+
+## 🔗 Einstiegspunkt
+- **`/wipulscan.html`** – Direkt aufrufbar
+
+## 📊 Datenbankschema: `wifi_scans`
+
+| Feld              | Typ     | Beschreibung                       |
+|-------------------|---------|------------------------------------|
+| `ts`              | datetime| ISO8601-Messzeitpunkt              |
+| `latency_ms`      | number  | Gemessene Latenz via fetch() [ms]  |
+| `downlink_mbps`   | number  | Downlink aus Network API [Mbps]    |
+| `rtt_ms`          | number  | RTT aus Network API [ms]           |
+| `effective_type`  | text    | 4g / 3g / 2g / slow-2g            |
+| `conn_type`       | text    | wifi / cellular / ethernet         |
+| `throughput_mbps` | number  | Gemessener Throughput [Mbps]       |
+| `quality_score`   | number  | Score 0–100                        |
+| `dbm_est`         | number  | Geschätzter Pegel [dBm]            |
+| `online`          | bool    | Online-Status                      |
+
+## ⚠️ Browser-Einschränkungen
+- **Network Information API**: Vollständig in Chrome/Edge (Android). In Firefox/Safari nur teilweise.
+- **Latenz-Messung**: Läuft in allen Browsern (cross-origin fetch mit no-cors).
+- **Throughput**: Abhängig von CORS-Verfügbarkeit der CDN-Assets.
+- **Direkte WiFi-Hardware**: Nicht zugänglich im Browser (OS-Beschränkung).
+
+## 🎵 WAV-Integration
+- WAV-Upload im Intro → Web Audio API → Frequenzspektrum animiert in der Intro-Waveform
+- Taste `Ctrl+W` öffnet WAV-Dialog auch nach dem Intro
+
+## 🔮 Mögliche Erweiterungen
+- [ ] WebRTC-basierte P2P-Latenz-Messung
+- [ ] Grundriss-Upload als Hintergrund der Spatial Map
+- [ ] Historische Daten aus Table API laden und vergleichen
+- [ ] PWA / Service Worker für Offline-Betrieb
+- [ ] Export als PDF-Report
